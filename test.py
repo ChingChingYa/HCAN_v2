@@ -36,7 +36,7 @@ class Config(object):
         self.dropout = 0.4                                              
         self.require_improvement = 1000
         # 若超过1000batch效果还没提升，则提前结束训练            
-        self.n_vocab = 216
+        self.n_vocab = 154
         # 词表大小，在运行时赋值
         self.num_epochs = 10                                            
         self.batch_size = 32                                           
@@ -66,12 +66,11 @@ class Config(object):
         input_batch = Variable(torch.LongTensor(test)).to(self.device)
         rating_batch = Variable(torch.LongTensor(rating)).to(self.device)
         sentiment_batch = Variable(torch.FloatTensor(pmf_muti)).to(self.device)
-        loss = 0
-        acc = 0
+        test_loss = 0
+        test_acc = 0
         torch_dataset = Data.TensorDataset(input_batch, rating_batch, sentiment_batch)
         test_loader = Data.DataLoader(dataset=torch_dataset,
-                                       batch_size=self.batch_size,
-                                       shuffle=True)
+                                      batch_size=self.batch_size)
 
         for i, (batch_x, batch_y, batch_z) in enumerate(test_loader):
             # batch_x, batch_y, batch_z = batch_x.to(device), batch_y.to(device), batch_z.to(device)
@@ -80,10 +79,10 @@ class Config(object):
             acc = model.accuracy(rating_vec, batch_y)
             # pmf_vec = [i.detach().cpu().numpy() for i in pmf_vec]
             # aspect_vec = [i.detach().cpu().numpy() for i in aspect_vec]
-            loss += loss.item()
-            acc += acc.item()
+            test_loss += loss.item()
+            test_acc += acc.item()
 
-        return loss / len(test), acc / len(test)
+        return test_loss / len(test), test_acc / len(test)
     
 
     def train(self, model, tain, rating, pmf_muti):
@@ -131,17 +130,14 @@ class Config(object):
         torch.manual_seed(1)
         torch.cuda.manual_seed_all(1)
         torch.backends.cudnn.deterministic = True  # 保证每次结果一样
-    
+
         wvmodel = KeyedVectors.load_word2vec_format(self.vocab_path)
         # a = torch.LongTensor(wvmodel.vectors)
         model = HCAN(self.embed_dim, self.hidden_dim, self.filter_sizes,
                      self.sent_maxlen, self.word_maxlen, self.num_classes,
                      self.dropout, self.n_vocab, wvmodel.vectors).to(self.device)
-                     
         # print(model)
-        # print(summary(model, (10, 30)))             
-
-        
+        # print(summary(model, (10, 30)))
         # 记录训练的日志
         # writer = SummaryWriter(log_dir=self.log_path + '/' + time.strftime('%m-%d_%H.%M', time.localtime()))
         for epoch in range(self.num_epochs):

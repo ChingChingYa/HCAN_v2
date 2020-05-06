@@ -9,11 +9,6 @@ import pickle
 import torch
 from torch.autograd import Variable
 
-
-
-
-
-
 test_list = []
 test_rmse = []
 config = Config()

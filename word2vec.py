@@ -7,6 +7,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from gensim.models import word2vec
 import xlsxwriter
+from nltk.corpus import stopwords
 
 # 使用nltk分词分句器
 sent_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
@@ -71,6 +72,7 @@ def LoadFile(filename, field):
     len_word = []
     result_words = []
     all_len = []
+    stop_words = set(stopwords.words('english'))
     with open(filename, 'rb') as f:
         for line in f:
             word1 = []
@@ -84,15 +86,16 @@ def LoadFile(filename, field):
                 len_word.append(len(sentence))
                 # 變成小寫
                 for i, w in enumerate(sentence):
-                    w = w.lower()
-                    newword.append(lemmatizer.lemmatize(''.join(w), pos='v'))
-        
+                    if w not in stop_words:
+                        w = w.lower()
+                        newword.append(lemmatizer.lemmatize(''.join(w), pos='v'))
+       
                 word1.extend(newword)
                 word2.append(newword)
                 # word.extend(newword) 全部串連在一起
                 # word.append(newword) 分成二維
                 # result_sents.append(newword)
-  
+ 
             result_words.append(word1)
             all_len.append(len(word1))
             result_sents.append(word2)

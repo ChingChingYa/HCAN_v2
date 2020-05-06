@@ -44,7 +44,7 @@ class Proto(nn.Module):
 
         # 計算評分 loss (CrossEntropy)
         for x, y in zip(rating_vec, rating_batch):
-            a = entroy(x, y-1)
+            a = entroy(x, y)
             loss_rating += torch.mean(a)
         loss_all = loss_sentiment + loss_rating
         return loss_all

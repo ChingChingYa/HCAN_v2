@@ -68,10 +68,10 @@ def ConvertToList(filename, words, sents, model, all_lens, maxlen_sentences, max
                 if s in vocab_word:
                     doc2[i] = vocab_word.index(s)
 
-        data_y.append([int(overall_list[l])])
+        data_y.append([int(overall_list[l])-1])
         data_x1.append(doc2)
         prouduct_rating_data.append([reviewerID_list[l],
-                                    asin_list[l], overall_list[l]])
+                                    asin_list[l], int(overall_list[l])-1])
 
     for i, sent in enumerate(sents):
         doc = np.zeros((maxlen_sentences, maxlen_words), dtype=np.int32)
